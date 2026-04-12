@@ -1,0 +1,4 @@
+mkdir app\migrations
+New-Item -Path app\migrations\__init__.py -ItemType File
+python manage.py makemigrations
+python manage.py migrate
