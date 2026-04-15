@@ -1,0 +1,66 @@
+
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+CREATE TYPE public.user_role_enum AS ENUM ('admin', 'user');
+
+CREATE TABLE public.users (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username        VARCHAR(50) NOT NULL UNIQUE,
+    email           VARCHAR(255) NOT NULL UNIQUE,
+    password_hash   VARCHAR(255) NOT NULL,
+    role            public.user_role_enum NOT NULL DEFAULT 'user',
+    created_at      TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE public.genres (
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name        VARCHAR(100) NOT NULL UNIQUE,   
+    created_at  TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+
+CREATE TABLE public.books (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title           VARCHAR(255) NOT NULL,          
+    author          VARCHAR(255) NOT NULL,          
+    rating          NUMERIC(3,2) DEFAULT 0 CHECK (rating >= 0 AND rating <= 5),
+    price           NUMERIC(10,2) NOT NULL CHECK (price >= 0),
+    description     TEXT,                        
+    cover_image_url TEXT,
+    pdf_url         TEXT NOT NULL,                   --shoulda be private URL (S3, etc.)
+    created_at      TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+
+CREATE TABLE public.book_genres (
+    book_id   UUID NOT NULL REFERENCES public.books(id) ON DELETE CASCADE,
+    genre_id  UUID NOT NULL REFERENCES public.genres(id) ON DELETE CASCADE,
+    PRIMARY KEY (book_id, genre_id)
+);
+
+
+CREATE TABLE public.purchases (
+    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id             UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    book_id             UUID NOT NULL REFERENCES public.books(id) ON DELETE CASCADE,
+    purchased_at        TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    chargily_payment_id VARCHAR(255) UNIQUE,
+    amount_paid         NUMERIC(10,2) NOT NULL,
+    UNIQUE (user_id, book_id)               
+);
+
+
+CREATE INDEX idx_users_email      ON public.users(email);
+CREATE INDEX idx_users_role       ON public.users(role);
+CREATE INDEX idx_books_author     ON public.books(author);
+CREATE INDEX idx_books_price      ON public.books(price);
+CREATE INDEX idx_purchases_user   ON public.purchases(user_id);
+CREATE INDEX idx_purchases_book   ON public.purchases(book_id);
+CREATE INDEX idx_book_genres_book ON public.book_genres(book_id);
+CREATE INDEX idx_book_genres_genre ON public.book_genres(genre_id);

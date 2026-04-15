@@ -1,2 +1,2 @@
-cd C:\.www\onlineBookstore
-.\venv\Scripts\python.exe backend\manage.py runserver
+cd C:\Users\astea\OneDrive\Bureau\library managment\onlineBookStore
+.\backend\.venv\Scripts\python.exe .\backend\manage.py runserver
