@@ -1,0 +1,155 @@
+
+Hi!!!
+this is the API DESIGN we'll work with in this project
+it's not completed tho at least you get the idea of how the api contract should be
+i will edit it once the sketches of abdelouahed are done
+feel free to ask about anything here, GL!
+
+GUEST (no authentication required):
+
+==> POST /api/v1/auth/signup
+   - body:     { email: string, password: string, username: string }
+   - response: { success: bool, message: string, user?: { id: string, username: string, email: string, role: string } }
+   - sets http-only cookie with JWT (payload: { id, role })
+
+==> POST /api/v1/auth/signin
+   - body:     { email: string, password: string }
+   - response: { success: bool, message: string, user?: { id: string, username: string, email: string, role: string } }
+   - sets http-only cookie with JWT (payload: { id, role })
+
+
+ALL ROLES (authenticated users + admin):
+
+==> GET /api/v1/auth/me
+   - response: { success: bool, user: { id: string, username: string, email: string, role: string } }
+   - verifies JWT cookie + checks user still exists in DB
+
+==> POST /api/v1/auth/logout
+   - response: { success: bool, message: string }
+   - clears the http-only JWT cookie
+
+==> GET /api/v1/books
+   - query:    ?page=1&limit=10&search=keyword&genre_id=uuid
+   - response: {
+       success: bool,
+       books: [{ 
+         id, title, author, rating, price, description,
+         cover_image_url,
+         genres: [{ id: string, name: string }, ...]
+       }, ...],
+       pagination: { page, limit, total, totalPages }
+     }
+   - Note: NEVER returns pdf_url (security ofc)
+
+==> GET /api/v1/books/:id
+   - response: same book object as above (with genres)
+
+==> GET /api/v1/genres
+   - response: { success: bool, genres: [{ id: string, name: string }, ...] }
+
+
+USER (regular authenticated users):
+
+==> POST /api/v1/purchases/checkout
+   - body:     { book_id: string }
+   - response: { success: bool, checkout_url: string, chargily_checkout_id: string }
+   - Creates Chargily checkout session and returns the payment URL
+
+==> GET /api/v1/me/purchases
+   - response: {
+       success: bool,
+       purchases: [{
+         id, book: { id, title, author, cover_image_url },
+         purchased_at, amount_paid
+       }, ...]
+     }
+
+==> GET /api/v1/books/:id/read
+   - response: { success: bool, pdf_signed_url: string (valid 1 hour), title: string }
+   - Checks that user has purchased the book → returns temporary signed URL (prolly S3, i will see later)
+
+
+ADMIN ONLY:
+
+==> GET /api/v1/admin/dashboard
+   - response: {
+       success: bool,
+       data: {
+         booksNum: number,
+         usersNum: number,
+         totalMoneyAmount: number
+       }
+     }
+
+==> GET /api/v1/admin/books
+   - query: ?page=1&limit=20&search=...
+   - response: same as public /books but includes pdf_url for admin
+
+==> POST /api/v1/admin/books
+   - body: {
+       title: string,
+       author: string,
+       rating?: number,
+       price: number,
+       description?: string,
+       cover_image_url?: string,
+       pdf_url: string,           - changed (UploadThing/S3 key)
+       genresIds: string[]        - at least 1 genre
+     }
+   - response: {
+       success: bool,
+       message: string,
+       book: { id, title, ... full book object }
+     }
+
+==> PUT /api/v1/admin/books/:id
+   - body: {
+       title?: string,
+       author?: string,
+       rating?: number,
+       price?: number,
+       description?: string,
+       cover_image_url?: string,
+       pdf_url?: string,
+       genresIds?: string[]      - can update genres
+     }
+   - response: { success: bool, message: string, book?: { ... } }
+
+==> DELETE /api/v1/admin/books/:id
+   - response: { success: bool, message: string }
+
+==> POST /api/v1/admin/genres
+   - body: { name: string }
+   - response: { success: bool, message: string, genre: { id: string, name: string } }
+
+==> GET /api/v1/admin/genres
+   - response: { success: bool, genres: [{ id, name }, ...] }
+
+==> PUT /api/v1/admin/genres/:id
+   - body: { name: string }
+   - response: { success: bool, message: string, genre: { id, name } }
+
+==> DELETE /api/v1/admin/genres/:id
+   - response: { success: bool, message: string }
+
+==> GET /api/v1/admin/users
+   - query: ?page=1&limit=20&search=...
+   - response: { success: bool, users: [{ id, username, email, role, created_at }, ...] }
+
+==> PUT /api/v1/admin/users/:id
+   - body: { role?: "admin"|"user", username?: string, email?: string }
+   - response: { success: bool, message: string, user?: { ... } }
+
+==> DELETE /api/v1/admin/users/:id
+   - response: { success: bool, message: string }
+
+
+WEBHOOK (public - no auth, must be CSRF attack exempt):
+
+==> POST /api/v1/webhooks/chargily
+   - body: Chargily webhook payload (checkout.paid, etc.)
+   - response: { success: bool }
+   - Validates signature → on success creates Purchase record
+
+
+
