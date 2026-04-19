@@ -9,7 +9,7 @@ const AuthContext = createContext();
 
 
 // ask ai to explain this code 3jzt nktb :/
-const AuthProvider = ({ children }) => {
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -124,8 +124,6 @@ const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-export default AuthProvider;
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
