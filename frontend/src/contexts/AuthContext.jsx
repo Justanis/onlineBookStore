@@ -20,7 +20,7 @@ const AuthProvider = ({ children }) => {
         setLoading(true);
         setError(null);
 
-        const response = await fetch("/api/v1/auth/me", {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/me`, {
           credentials: "include",
 
         });
@@ -46,7 +46,7 @@ const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch("/api/v1/auth/signup", {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +74,7 @@ const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
 
-        const response = await fetch("/api/v1/auth/signin", {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/signin`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -102,7 +102,7 @@ const AuthProvider = ({ children }) => {
         setLoading(true);
         setError(null);
 
-        const response = await fetch("/api/v1/auth/logout", {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/logout`, {
             method: "POST",
             credentials: "include",
         });
