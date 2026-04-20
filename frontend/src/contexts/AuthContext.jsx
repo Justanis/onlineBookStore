@@ -1,12 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect, createContext, useContext } from "react";
 
-
 // creatin a context for the auth endpionts and the user state to wrap the app with it
-// and use it in the components to access the user state 
+// and use it in the components to access the user state
 // (seee the video i sent (the react course) to learn about the context and how to use it in the components)
 const AuthContext = createContext();
-
 
 // ask ai to explain this code 3jzt nktb :/
 export const AuthProvider = ({ children }) => {
@@ -20,10 +18,12 @@ export const AuthProvider = ({ children }) => {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/me`, {
-          credentials: "include",
-
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/me`,
+          {
+            credentials: "include",
+          },
+        );
         if (response.ok) {
           const data = await response.json();
           setUser(data.user);
@@ -46,14 +46,17 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/signup`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/signup`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ email, password, username }),
         },
-        credentials: "include",
-        body: JSON.stringify({ email, password, username }),
-      });
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -74,52 +77,61 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
 
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/signin`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify({ email, password }),
-        });
+      console.log("Signing in with:", { email, password });
 
-        if (response.ok) {
-            const data = await response.json();
-            setUser(data.user);
-        } else {
-            const errorData = await response.json();
-            setError(errorData.error);
-        }
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/signin`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ email, password }),
+        },
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+      } else {
+        const errorData = await response.json();
+        console.error("Sign-in error:", errorData);
+        setError(errorData.error);
+      }
     } catch (err) {
-        setError(err);
+      setError(err);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
   const logout = async () => {
     try {
-        setLoading(true);
-        setError(null);
+      setLoading(true);
+      setError(null);
 
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/logout`, {
-            method: "POST",
-            credentials: "include",
-        });
-        if (response.ok) {
-            setUser(null);
-        }
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/logout`,
+        {
+          method: "POST",
+          credentials: "include",
+        },
+      );
+      if (response.ok) {
+        setUser(null);
+      }
     } catch (err) {
-        setError(err);
+      setError(err);
     } finally {
-        setLoading(false);
-
+      setLoading(false);
     }
-  }
-
+  };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, signUp, signIn, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, error, signUp, signIn, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -131,5 +143,4 @@ export const useAuth = () => {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-}
-
+};

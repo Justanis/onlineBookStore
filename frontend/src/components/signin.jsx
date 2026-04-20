@@ -5,20 +5,13 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { redirect } from "react-router-dom";
 
-export default function SignUp() {
-  const [username, setUsername] = useState("");
+export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const { user, loading, signUp } = useAuth();
+  const { user, loading, signIn } = useAuth();
 
-  const handleSignUp = async () => {
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-
-    await signUp(email, password, username);
+  const handleSignIn = async () => {
+    await signIn(email, password);
   };
 
   if (user) {
@@ -44,28 +37,17 @@ export default function SignUp() {
         </button>
         <Card>
           <CardHeader>
-            <CardTitle>Sign Up</CardTitle>
+            <CardTitle>Sign In</CardTitle>
           </CardHeader>
           <CardContent>
             <form
               action=""
               onSubmit={(e) => {
                 e.preventDefault();
-                handleSignUp();
+                handleSignIn();
               }}
             >
               <div className="grid gap-4">
-                <div className="grid gap-1.5">
-                  <Label htmlFor="username">Username</Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder="john_doe"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                  />
-                </div>
                 <div className="grid gap-1.5">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -74,7 +56,6 @@ export default function SignUp() {
                     placeholder="m@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    required
                   />
                 </div>
                 <div className="grid gap-1.5">
@@ -84,17 +65,6 @@ export default function SignUp() {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="grid gap-1.5">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
                   />
                 </div>
               </div>
@@ -102,17 +72,16 @@ export default function SignUp() {
                 className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 type="submit"
               >
-                Sign Up
+                Sign In
               </button>
             </form>
           </CardContent>
         </Card>
-
         <button
           className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-          onClick={() => (window.location.href = "/signin")}
+          onClick={() => (window.location.href = "/signup")}
         >
-          Already have an account? Sign In
+          Don't have an account? Sign Up
         </button>
       </div>
     </div>
