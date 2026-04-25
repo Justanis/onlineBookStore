@@ -54,7 +54,7 @@ CREATE TABLE public.orders (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id             UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
     book_id             UUID NOT NULL REFERENCES public.books(id) ON DELETE CASCADE,
-    status              public.purchase_status_enum DEFAULT NULL, -- NULL: no interaction, pending: wishlist, finished/cancelled: checkout outcome
+    status              public.purchase_status_enum NOT NULL, -- pending: wishlist, finished/cancelled: checkout outcome
     purchased_at        TIMESTAMPTZ,
     chargily_payment_id VARCHAR(255) UNIQUE,
     amount              NUMERIC(10,2) NOT NULL,
@@ -75,7 +75,6 @@ CREATE TABLE public.reviews (
 );
 
 
-CREATE INDEX idx_users_email      ON public.users(email);
 CREATE INDEX idx_users_role       ON public.users(role);
 CREATE INDEX idx_books_author     ON public.books(author);
 CREATE INDEX idx_books_price      ON public.books(price);

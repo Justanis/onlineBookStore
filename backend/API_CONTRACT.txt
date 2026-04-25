@@ -28,6 +28,45 @@ ALL ROLES (authenticated users + admin):
    - response: { success: bool, message: string }
    - clears the http-only JWT cookie
 
+==> GET /api/v1/recent-books
+   - response: {
+       success: bool,
+       books: [{ 
+         id, title, description,
+         cover_image_url,
+       }, ...],
+     }
+   - Note: returns only the recent 10 books and NEVER returns pdf_url (security ofc)
+
+==> GET /api/v1/books/:id
+   - response: {
+        success: bool,
+        book: {
+          id, title, genres: [{ id, name }, ...], author, rating, price, description,
+        }
+   }
+   - Note: NEVER returns pdf_url
+
+
+USER (regular authenticated users):
+
+==> POST /api/v1/orders/checkout
+   - body:     { book_id: string }
+   - response: { success: bool, checkout_url: string, chargily_payment_id: string }
+   - Creates Chargily checkout session and returns the payment URL
+
+==> POST /api/v1/orders/wishlist
+   - body:     { book_id: string }
+   - response: { success: bool, message: string } // adds the book to the orders table with status pending (wishlist), make the amount 0 and no chargily_payment_id since it's not a real order yet, just a wishlist item
+
+==> GET /api/v1/me
+   - response: {
+       success: bool,
+       profile: { id, username, email },
+       orders: [{ id, book: { id, title }, purchased_at, amount, status }, ...],
+     }
+   - Note: includes both orders and wishlist (pending) books for the user
+
 ==> GET /api/v1/books
    - query:    ?page=1&limit=10&search=keyword&genre_id=uuid
    - response: {
@@ -40,37 +79,6 @@ ALL ROLES (authenticated users + admin):
        pagination: { page, limit, total, totalPages }
      }
    - Note: NEVER returns pdf_url (security ofc)
-
-==> GET /api/v1/books/:id
-   - response: same book object as above (with genres)
-
-==> GET /api/v1/genres
-   - response: { success: bool, genres: [{ id: string, name: string }, ...] }
-
-
-USER (regular authenticated users):
-
-==> POST /api/v1/orders/checkout
-   - body:     { book_id: string }
-   - response: { success: bool, checkout_url: string, chargily_checkout_id: string }
-   - Creates Chargily checkout session and returns the payment URL
-
-==> GET /api/v1/me/orders
-   - response: {
-       success: bool,
-       orders: [{
-         id, book: { id, title, author, cover_image_url },
-         purchased_at, amount
-       }, ...]
-     }
-
-==> GET /api/v1/me/wishlist  // get all the the 'pending status books' 
-   - response: {
-      success: bool,
-      wished_books: [{
-         id, book: { id, title, author, cover_image_url }
-       }, ...]
-   }
 
 ==> GET /api/v1/books/:id/read
    - response: { success: bool, pdf_signed_url: string (valid 1 hour), title: string }
@@ -89,12 +97,18 @@ ADMIN ONLY:
          topSellingBooks: [{ id, title, author }, ...],
          latestOrders: [{ id, book: { id, title }, user: { id, username }, purchased_at, amount }, ...],
          recentReviews: [{ id, user: { id, username }, rating, content }, ...],
+         numbersOfUsersPerMonth: [{ month: string, count: number }, ...] // for the last 3 months
        }
      }
 
 ==> GET /api/v1/admin/books
-   - query: ?page=1&limit=20&search=...
+   - query: ?page=1&limit=20&search=keyword&genre_id=uuid
    - response: same as public /books but includes pdf_url for admin
+   - Search behavior:
+     * search is optional and case-insensitive (contains match)
+     * search fields: title, author, description
+     * empty/whitespace search means no filtering
+     * pagination total/totalPages are calculated after applying search filter
 
 ==> POST /api/v1/admin/books
    - body: {
@@ -111,7 +125,7 @@ ADMIN ONLY:
        success: bool,
        message: string,
        book: { id, title, ... full book object }
-     }
+      }
 
 ==> PUT /api/v1/admin/books/:id
    - body: {
@@ -145,13 +159,57 @@ ADMIN ONLY:
 
 ==> GET /api/v1/admin/users
    - query: ?page=1&limit=20&search=...
-   - response: { success: bool, users: [{ id, username, email, role, created_at }, ...] }
+   - response: { success: bool, users: [{ id, username, email, status }, ...] }
 
 ==> PUT /api/v1/admin/users/:id
    - body: { status: 'activated' | 'disactivated' }
    - response: { success: bool, message: string, user?: { ... } } // change the status of the user to activated/disactivated
    - read the user id from the URL params and the status from the body, then update the user
 
+==> PUT /api/v1/admin/settings
+   - body: { email?: string, password?: string }
+   - response: { success: bool, message: string, admin?: { ... } }
+
+==> GET /api/v1/admin/orders
+   - query: ?page=1&limit=20&search=...
+   - response: {
+       success: bool,
+       orders: [{
+         id, user: { id, username }, book: { id, title },  amount, status
+       }, ...]
+     }
+   - Note: don't includes pending orders (wishlist), only cancelled/finished ones for admin review, do not return chargily_payment_id for security reasons
+   - Search behavior:
+     * search is optional and case-insensitive (contains match)
+     * search fields: user.username, book.title, status
+     * empty/whitespace search means no filtering
+     * pagination total/totalPages are calculated after applying search filter
+
+==> GET /api/v1/admin/reviews
+   - query: ?page=1&limit=20&search=...
+   - response: {
+       success: bool,
+       reviews: [{
+         id, user: { id, username }, book: { id, title }, rating
+       }, ...]
+     }
+   - Search behavior:
+     * search is optional and case-insensitive (contains match)
+     * search fields: user.username, book.title, content
+     * empty/whitespace search means no filtering
+     * pagination total/totalPages are calculated after applying search filter
+
+==> GET /api/v1/admin/analytics
+   - query: ?type=daily|weekly|monthly
+   - response: {
+       success: bool,
+       data: {
+         sales: [{ date: string, totalAmount: number }, ...],
+         topSellingGenres: [{ genre: { id, name }, sales: number }, ...], // sales is the total amount of money made from books of this genre
+         topSellingBooks: [{ book: { id, title }, sales: number }, ...],
+         ordersCount: number, // total number of orders in the given period (depending on the type daily/weekly/monthly) and excluding pending/wishlist ones
+       }
+     }
 
 WEBHOOK (public - no auth, must be CSRF attack exempt):
 
