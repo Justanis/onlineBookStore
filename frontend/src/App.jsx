@@ -2,11 +2,11 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
 } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import SignUp from "./components/signup";
 import SignIn from "./components/signin";
+import AdminLayout from "./components/admin-layout";
 
 import "./App.css";
 
@@ -41,6 +41,17 @@ function App() {
           />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="books" element={<AdminBooks />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="customers" element={<AdminCustomers />} />
+            <Route path="genres" element={<AdminGenres />} />
+            <Route path="reviews" element={<AdminReviews />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
         </Routes>
       </Router>
     </AuthProvider>
