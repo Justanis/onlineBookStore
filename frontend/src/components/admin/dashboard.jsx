@@ -21,39 +21,48 @@ const mockDashboardResponse = {
     usersNum: 48,
     totalMoneyAmount: 7850,
     topSellingBooks: [
-      { id: "b1", title: "Atomic Habits", author: "James Clear" },
-      { id: "b2", title: "Clean Code", author: "Robert C. Martin" },
-      { id: "b3", title: "The Pragmatic Programmer", author: "Andrew Hunt" },
-      { id: "b4", title: "Deep Work", author: "Cal Newport" },
+      { id: "b1", title: "The Metamorphosis", author: "Franz Kafka" },
+      { id: "b2", title: "White Nights", author: "Fyodor Dostoevsky" },
+      { id: "b3", title: "The Stranger", author: "Albert Camus" },
+      { id: "b4", title: "1984", author: "George Orwell" },
+      {
+        id: "b5",
+        title: "The Brothers Karamazov",
+        author: "Fyodor Dostoevsky",
+      },
     ],
     latestOrders: [
       {
-        id: "ord-1039",
+        id: "182",
         book: { id: "b1", title: "Atomic Habits" },
         user: { id: "u1", username: "amine" },
         purchased_at: "2026-04-26T10:14:00.000Z",
         amount: 2200,
+        status: "finished",
       },
       {
-        id: "ord-1038",
+        id: "181",
         book: { id: "b2", title: "Clean Code" },
         user: { id: "u2", username: "lina" },
         purchased_at: "2026-04-26T09:42:00.000Z",
         amount: 2800,
+        status: "pending",
       },
       {
-        id: "ord-1037",
+        id: "180",
         book: { id: "b4", title: "Deep Work" },
         user: { id: "u3", username: "sara" },
         purchased_at: "2026-04-25T18:20:00.000Z",
         amount: 1900,
+        status: "cancelled",
       },
       {
-        id: "ord-1036",
+        id: "179",
         book: { id: "b5", title: "Refactoring" },
         user: { id: "u4", username: "nadir" },
         purchased_at: "2026-04-25T17:03:00.000Z",
         amount: 3100,
+        status: "finished",
       },
     ],
     recentReviews: [
@@ -97,71 +106,98 @@ const chartConfig = {
   },
 };
 
+const statusStyles = {
+  finished: "border-emerald-400/70 text-emerald-300",
+  pending: "border-amber-400/70 text-amber-300",
+  cancelled: "border-rose-400/70 text-rose-300",
+};
+
 export default function AdminDashboard() {
   const { data } = mockDashboardResponse;
 
   return (
     <div className="m-6 space-y-8">
-      {/* statistics cards section */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5 h-40">
-        <div className="flex justify-center items-center text-center rounded-lg border bg-card p-6">
-          <p>total books: {data.booksNum}</p>
-        </div>
-        <div className="flex justify-center items-center text-center rounded-lg border bg-card p-6">
-          <p>total orders: {data.latestOrders.length}</p>
-        </div>
-        <div className="flex justify-center items-center text-center rounded-lg border bg-card p-6">
-          <p>revenue: {data.totalMoneyAmount}</p>
-        </div>
-        <div className="flex justify-center items-center text-center rounded-lg border bg-card p-6">
-          <p>customers: {data.usersNum}</p>
-        </div>
-        <div className="flex justify-center items-center text-center rounded-lg border bg-card p-6">
-          <p>reviews: {data.recentReviews.length}</p>
-        </div>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        {[
+          { label: "total books", value: data.booksNum },
+          { label: "total orders", value: data.latestOrders.length },
+          { label: "revenue", value: `${data.totalMoneyAmount}DA` },
+          { label: "customers", value: data.usersNum },
+          { label: "reviews", value: data.recentReviews.length },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            className="relative overflow-hidden rounded-2xl border border-white/30 bg-neutral-950 px-4 py-5 text-center text-sm text-white"
+          >
+            <div className="absolute inset-0 bg-[repeating-linear-gradient(135deg,rgba(255,255,255,0.08)_0_2px,transparent_2px_8px)]" />
+            <div className="relative">
+              <p className="text-white/70">{stat.label}</p>
+              <p className="mt-2 text-lg font-semibold text-white">{stat.value}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* statistics analytics section */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="rounded-lg border bg-card p-5">
-          <h3 className="text-lg font-semibold">Top Sellers</h3>
-          <ul className="mt-4 space-y-3">
-            {data.topSellingBooks.map((book) => (
-              <li
-                key={book.id}
-                className="flex items-center rounded-md border px-3 py-2"
-              >
-                <span className="text-sm font-medium">{book.title}-</span>
-                <span className="text-sm text-muted-foreground">{book.author}</span>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-3xl border border-violet-400/50 bg-neutral-950 p-5">
+          <h3 className="text-lg font-semibold text-white">Top Sellers</h3>
+          <ul className="mt-4 space-y-2 text-sm text-white/80">
+            {data.topSellingBooks.map((book, index) => (
+              <li key={book.id} className="flex gap-2">
+                <span className="text-white/50">{index + 1}-</span>
+                <span className="font-medium text-white">{book.title}</span>
+                <span className="text-white/50">- {book.author}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="rounded-lg border bg-card p-5">
-          <h3 className="text-lg font-semibold">Latest Orders</h3>
-          <ul className="mt-4 space-y-3">
-            {data.latestOrders.map((order) => (
-              <li key={order.id} className="rounded-md border px-3 py-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold">{order.id}</span>
-                  <span className="text-sm text-muted-foreground">{order.amount} DZD</span>
+        <div className="rounded-3xl border border-violet-400/50 bg-neutral-950 p-5">
+          <h3 className="text-lg font-semibold text-white">Latest Orders</h3>
+          <div className="mt-4 space-y-2 text-sm text-white/80">
+            {data.latestOrders.map((order) => {
+              const statusClass =
+                statusStyles[order.status] ?? "border-white/30 text-white/60";
+
+              return (
+                <div
+                  key={order.id}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-white/15 bg-white/[0.02] px-4 py-3"
+                >
+                  <div className="space-y-1">
+                    <p className="text-white">
+                      Order {order.id} - {new Date(order.purchased_at).toLocaleDateString()}
+                    </p>
+                    <p className="text-white/50">
+                      {order.user.username} - {order.book.title}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`inline-flex items-center rounded-full border px-2 py-1 text-xs capitalize ${statusClass}`}
+                    >
+                      {order.status}
+                    </span>
+                    <span className="text-xs text-white/50">
+                      {order.amount}DA
+                    </span>
+                  </div>
                 </div>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {order.user.username} bought {order.book.title}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {new Date(order.purchased_at).toLocaleDateString()}
-                </p>
-              </li>
-            ))}
-          </ul>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="rounded-lg border bg-card p-5">
-          <h3 className="text-lg font-semibold">Users Per Month</h3>
-          <ChartContainer config={chartConfig} className="mt-4 min-h-[260px] w-full">
-            <BarChart data={data.numbersOfUsersPerMonth} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
+        <div className="rounded-3xl border border-violet-400/50 bg-neutral-950 p-5">
+          <h3 className="text-lg font-semibold text-white">Analytics</h3>
+          <ChartContainer
+            config={chartConfig}
+            className="mt-4 min-h-[220px] w-full"
+          >
+            <BarChart
+              data={data.numbersOfUsersPerMonth}
+              margin={{ top: 8, right: 12, left: 0, bottom: 8 }}
+            >
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis dataKey="month" tickLine={false} axisLine={false} />
               <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={28} />
@@ -172,16 +208,17 @@ export default function AdminDashboard() {
           </ChartContainer>
         </div>
 
-        <div className="rounded-lg border bg-card p-5">
-          <h3 className="text-lg font-semibold">Recent Reviews</h3>
+        <div className="rounded-3xl border border-violet-400/50 bg-neutral-950 p-5">
+          <h3 className="text-lg font-semibold text-white">Recent Reviews</h3>
           <ul className="mt-4 space-y-3">
             {data.recentReviews.map((review) => (
-              <li key={review.id} className="rounded-md border px-3 py-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{review.user.username}</span>
-                  <span className="text-sm text-muted-foreground">{review.rating}/5</span>
-                </div>
-                <p className="mt-1 text-sm text-muted-foreground">{review.content}</p>
+              <li
+                key={review.id}
+                className="flex items-center justify-between rounded-xl border border-white/15 bg-white/[0.02] px-4 py-3 text-sm text-white/80"
+              >
+                <span className="text-white">{review.user.username}</span>
+                <span className="text-white/60">{review.content}</span>
+                <span className="text-amber-300">{review.rating}/5</span>
               </li>
             ))}
           </ul>
