@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import Navigation from "./navigation";
 import SearchBar from "./search-bar";
 import { Button } from "./ui/button";
@@ -243,8 +244,9 @@ export default function Books() {
 
         <div className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-3 xl:grid-cols-5">
           {paginatedBooks.map((book) => (
-            <div
+            <Link
               key={book.id}
+              to={`/books/${book.id}`}
               className="group flex flex-col items-center gap-2"
             >
               <div className="relative h-44 w-28 overflow-hidden rounded-lg border border-white/30 bg-zinc-900 transition-transform duration-200 group-hover:scale-[1.02]">
@@ -253,13 +255,13 @@ export default function Books() {
                   src={book.cover_image_url}
                   alt={book.title}
                   className="absolute inset-0 h-full w-full object-cover opacity-45"
-                />{" "}
+                />
               </div>
 
               <span className="max-w-28 truncate text-center text-sm font-medium">
                 {book.title}
               </span>
-            </div>
+            </Link>
           ))}
         </div>
 

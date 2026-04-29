@@ -9,6 +9,7 @@ import SignUp from "./components/signup";
 import SignIn from "./components/signin";
 import Home from "./components/home";
 import Books from "./components/books";
+import BooksById from "./components/books-by-id";
 import AdminLayout from "./components/admin/admin-layout";
 import AdminDashboard from "./components/admin/dashboard";
 import AdminBooks from "./components/admin/books";
@@ -28,6 +29,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/books" element={<Books />} />
+          <Route path="/books/:id" element={<BooksById />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/admin" element={<AdminLayout />}>
