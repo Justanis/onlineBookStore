@@ -63,7 +63,7 @@ USER (regular authenticated users):
    - response: {
        success: bool,
        profile: { id, username, email },
-       orders: [{ id, book: { id, title }, purchased_at, amount, status }, ...],
+       orders: [{ id, book: { id, title, cover_image_url }, purchased_at, amount, status }, ...],
      }
    - Note: includes both orders and wishlist (pending) books for the user
 
