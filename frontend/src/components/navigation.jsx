@@ -72,21 +72,14 @@ export default function Navigation() {
                             </button>
                         </>
                     ) : (
-                        <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => navigate("/profile")}
+                            className="flex items-center gap-3"
+                        >
                             <div className="h-8 w-8 rounded-full border border-white/60 bg-white/20" />
-                            <span className="text-sm text-white/80">User</span>
-                            <button
-                                type="button"
-                                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30"
-                                aria-label="Open menu"
-                            >
-                                <span className="flex flex-col gap-1">
-                                    <span className="h-0.5 w-4 rounded-full bg-white" />
-                                    <span className="h-0.5 w-4 rounded-full bg-white" />
-                                    <span className="h-0.5 w-4 rounded-full bg-white" />
-                                </span>
-                            </button>
-                        </div>
+                            <span className="text-sm text-white/80">{user.name}</span>
+                        </button>
                     )}
                 </div>
             </div>
