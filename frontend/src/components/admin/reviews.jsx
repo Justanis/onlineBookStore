@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SearchBar from "../search-bar";
 import {
   Pagination,
@@ -8,6 +8,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "../ui/pagination";
+import { Spinner } from "../ui/spinner";
 
 const mockAdminReviewsResponse = {
   success: true,
@@ -74,6 +75,12 @@ export default function AdminReviews() {
   const [currentPage, setCurrentPage] = useState(
     mockAdminReviewsResponse.pagination.page,
   );
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const pageSize = mockAdminReviewsResponse.pagination.limit;
 
@@ -145,6 +152,14 @@ export default function AdminReviews() {
       </PaginationContent>
     </Pagination>
   );
+
+  if (loading) {
+    return (
+      <div className="m-6 flex min-h-[60vh] items-center justify-center">
+        <Spinner className="size-8" />
+      </div>
+    );
+  }
 
   return (
     <div className="m-6 space-y-8">

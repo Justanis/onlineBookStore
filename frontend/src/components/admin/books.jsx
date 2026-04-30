@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import SearchBar from "../search-bar";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { Spinner } from "../ui/spinner";
 import {
   Dialog,
   DialogContent,
@@ -144,6 +145,12 @@ export default function AdminBooks() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBookId, setEditingBookId] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const pageSize = mockAdminBooksResponse.pagination.limit;
 
@@ -292,6 +299,14 @@ export default function AdminBooks() {
       </PaginationContent>
     </Pagination>
   );
+
+  if (loading) {
+    return (
+      <div className="m-6 flex min-h-[60vh] items-center justify-center">
+        <Spinner className="size-8" />
+      </div>
+    );
+  }
 
   return (
     <div className="m-6 space-y-8">

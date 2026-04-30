@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { Spinner } from "./ui/spinner";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { redirect } from "react-router-dom";
@@ -28,7 +29,7 @@ export default function SignUp() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        Loading...
+        <Spinner className="size-6" />
       </div>
     );
   }

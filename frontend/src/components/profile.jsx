@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Navigation from "./navigation";
+import { Spinner } from "./ui/spinner";
 
 const mockProfileResponse = {
 	success: true,
@@ -59,6 +60,12 @@ export default function Profile() {
 	const { profile, orders } = mockProfileResponse;
 	const wishlistOrders = orders.filter((order) => order.status === "pending");
 	const purchasedOrders = orders.filter((order) => order.status === "finished");
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		const timer = setTimeout(() => setLoading(false), 500);
+		return () => clearTimeout(timer);
+	}, []);
 
 	const totals = useMemo(() => {
 		return {
@@ -74,7 +81,13 @@ export default function Profile() {
 
 			<main className="mx-auto max-w-6xl px-4 py-8">
 				<div className="rounded-[32px] border border-white/20 bg-neutral-950 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.08)]">
-					<div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+					{loading ? (
+						<div className="flex min-h-[320px] items-center justify-center">
+							<Spinner className="size-8" />
+						</div>
+					) : (
+						<div>
+							<div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
 						<div className="flex items-center gap-4">
 							<div className="h-16 w-16 rounded-full border border-white/40 bg-white/10" />
 							<div>
@@ -104,7 +117,7 @@ export default function Profile() {
 						</div>
 					</div>
 
-					<div className="mt-8 grid gap-6 lg:grid-cols-2">
+						<div className="mt-8 grid gap-6 lg:grid-cols-2">
 						<div>
 							<h2 className="text-lg font-semibold">Purchased Books</h2>
 							<div className="mt-4 space-y-3">
@@ -218,7 +231,9 @@ export default function Profile() {
 								)}
 							</div>
 						</div>
+						</div>
 					</div>
+					)}
 				</div>
 			</main>
 		</div>

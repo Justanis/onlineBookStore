@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SearchBar from "../search-bar";
 import { Button } from "../ui/button";
 import {
@@ -9,6 +9,7 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "../ui/pagination";
+import { Spinner } from "../ui/spinner";
 
 const mockAdminUsersResponse = {
     success: true,
@@ -53,6 +54,12 @@ export default function AdminCustomers() {
     const [currentPage, setCurrentPage] = useState(
         mockAdminUsersResponse.pagination.page,
     );
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 500);
+        return () => clearTimeout(timer);
+    }, []);
 
     const pageSize = mockAdminUsersResponse.pagination.limit;
 
@@ -137,6 +144,14 @@ export default function AdminCustomers() {
             </PaginationContent>
         </Pagination>
     );
+
+    if (loading) {
+        return (
+            <div className="m-6 flex min-h-[60vh] items-center justify-center">
+                <Spinner className="size-8" />
+            </div>
+        );
+    }
 
     return (
         <div className="m-6 space-y-8">

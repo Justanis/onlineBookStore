@@ -1,4 +1,5 @@
 
+import { useEffect, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -13,6 +14,7 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "../ui/chart";
+import { Spinner } from "../ui/spinner";
 
 const mockDashboardResponse = {
   success: true,
@@ -114,6 +116,20 @@ const statusStyles = {
 
 export default function AdminDashboard() {
   const { data } = mockDashboardResponse;
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="m-6 flex min-h-[60vh] items-center justify-center">
+        <Spinner className="size-8" />
+      </div>
+    );
+  }
 
   return (
     <div className="m-6 space-y-8">

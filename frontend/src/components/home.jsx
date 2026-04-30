@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Navigation from "./navigation";
+import { Spinner } from "./ui/spinner";
 import {
 	Carousel,
 	CarouselContent,
@@ -66,6 +67,12 @@ export default function Home() {
 	const { books } = mockRecentBooksResponse;
 	const [carouselApi, setCarouselApi] = useState(null);
 	const [selectedIndex, setSelectedIndex] = useState(0);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		const timer = setTimeout(() => setLoading(false), 500);
+		return () => clearTimeout(timer);
+	}, []);
 
 	useEffect(() => {
 		if (!carouselApi) {
@@ -93,7 +100,12 @@ export default function Home() {
 
 			<main className="px-4 pb-10 pt-6">
 				<div className="mx-auto max-w-6xl rounded-[32px] border border-white/30 bg-neutral-950 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.08)]">
-					<div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+					{loading ? (
+						<div className="flex min-h-[360px] items-center justify-center">
+							<Spinner className="size-8" />
+						</div>
+					) : (
+						<div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
 						<div className="rounded-[28px] border border-white/20 bg-neutral-900/70 p-5">
 							<div className="relative overflow-hidden rounded-[24px] border border-white/20 bg-neutral-800">
 								<Carousel setApi={setCarouselApi} className="relative">
@@ -151,7 +163,8 @@ export default function Home() {
 								})}
 							</div>
 						</aside>
-					</div>
+						</div>
+					)}
 				</div>
 			</main>
 		</div>

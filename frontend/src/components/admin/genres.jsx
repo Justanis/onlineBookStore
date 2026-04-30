@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -11,6 +11,7 @@ import {
     DialogTitle,
 } from "../ui/dialog";
 import { Label } from "../ui/label";
+import { Spinner } from "../ui/spinner";
 
 const mockAdminGenresResponse = {
     success: true,
@@ -40,6 +41,12 @@ export default function AdminGenres() {
     const [editingGenreId, setEditingGenreId] = useState(null);
     const [form, setForm] = useState(emptyForm);
     const [genres, setGenres] = useState(mockAdminGenresResponse.genres);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 500);
+        return () => clearTimeout(timer);
+    }, []);
 
     const openAddDialog = () => {
         setEditingGenreId(null);
@@ -78,14 +85,22 @@ export default function AdminGenres() {
 
     const genreTiles = useMemo(() => genres, [genres]);
 
+    if (loading) {
+        return (
+            <div className="m-6 flex min-h-[60vh] items-center justify-center">
+                <Spinner className="size-8" />
+            </div>
+        );
+    }
+
     return (
-        <div className="rounded-3xl border border-white/20 p-6 text-white">
+        <div className="rounded-3xl border border-white/20 bg-neutral-950 p-6 text-white">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-semibold tracking-tight text-black">Categories</h2>
+                    <h2 className="text-2xl font-semibold tracking-tight">Categories</h2>
                 </div>
                 <Button
-                    className="gap-2 border border-white/20 bg-amber-950 text-black hover:bg-amber-600"
+                    className="gap-2 border border-white/20 bg-white/10 text-white hover:bg-white/20"
                     variant="outline"
                     onClick={openAddDialog}
                 >
@@ -106,7 +121,7 @@ export default function AdminGenres() {
                 {genreTiles.map((genre, index) => (
                     <div
                         key={genre.id}
-                        className={`group relative flex aspect-square flex-col justify-between rounded-3xl border border-white/40 bg-neutral-900/70 p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.08)]`}
+                        className="group relative flex aspect-square flex-col justify-between rounded-3xl border border-white/40 bg-neutral-900/70 p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.08)]"
                     >
                         <div className="absolute inset-0 rounded-3xl bg-[repeating-linear-gradient(135deg,transparent,transparent_6px,rgba(255,255,255,0.08)_6px,rgba(255,255,255,0.08)_12px)]" />
                         <div

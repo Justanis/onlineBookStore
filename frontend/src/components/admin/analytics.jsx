@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "../ui/chart";
+import { Spinner } from "../ui/spinner";
 import {
   Bar,
   BarChart,
@@ -109,6 +110,12 @@ const ordersConfig = {
 
 export default function AdminAnalytics() {
   const [activeType, setActiveType] = useState("daily");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const analytics = mockAnalyticsByType[activeType];
   const { sales, topSellingGenres, topSellingBooks, ordersCount } =
@@ -120,6 +127,14 @@ export default function AdminAnalytics() {
       orders: Math.max(1, Math.round(item.totalAmount / 400)),
     }));
   }, [sales]);
+
+  if (loading) {
+    return (
+      <div className="m-6 flex min-h-[60vh] items-center justify-center">
+        <Spinner className="size-8" />
+      </div>
+    );
+  }
 
   return (
     <div className="m-6 space-y-8">

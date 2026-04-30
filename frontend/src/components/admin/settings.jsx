@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { Spinner } from "../ui/spinner";
 
 const mockAdminSettingsResponse = {
     success: true,
@@ -14,10 +15,24 @@ const mockAdminSettingsResponse = {
 export default function AdminSettings() {
     const [email, setEmail] = useState(mockAdminSettingsResponse.admin.email);
     const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 500);
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleSubmit = (event) => {
         event.preventDefault();
     };
+
+    if (loading) {
+        return (
+            <div className="m-6 flex min-h-[60vh] items-center justify-center">
+                <Spinner className="size-8" />
+            </div>
+        );
+    }
 
     return (
         <div className="m-6 space-y-8">
