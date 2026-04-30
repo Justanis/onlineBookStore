@@ -12,6 +12,7 @@ import Home from "./components/home";
 import Books from "./components/books";
 import BooksById from "./components/books-by-id";
 import About from "./components/about";
+import Features from "./components/features";
 import AdminLayout from "./components/admin/admin-layout";
 import AdminDashboard from "./components/admin/dashboard";
 import AdminBooks from "./components/admin/books";
@@ -34,6 +35,7 @@ function App() {
           <Route path="/books/:id" element={<BooksById />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/about" element={<About />} />
+          <Route path="/features" element={<Features />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/admin" element={<AdminLayout />}>
