@@ -91,7 +91,9 @@ def auth_signup(request):
             'message': 'User created successfully',
             'user': user.to_dict()
         })
-        response.set_cookie('jwt', token, httponly=True, secure=False, samesite='Lax')  # secure=True in production
+        cookie_secure = os.environ.get('JWT_COOKIE_SECURE', 'False') == 'True'
+        cookie_samesite = os.environ.get('JWT_COOKIE_SAMESITE', 'Lax')
+        response.set_cookie('jwt', token, httponly=True, secure=cookie_secure, samesite=cookie_samesite)
         return response
     except ValidationError as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=400)
@@ -125,7 +127,9 @@ def auth_signin(request):
                 'message': 'Login successful',
                 'user': user.to_dict()
             })
-            response.set_cookie('jwt', token, httponly=True, secure=False, samesite='Lax')
+            cookie_secure = os.environ.get('JWT_COOKIE_SECURE', 'False') == 'True'
+            cookie_samesite = os.environ.get('JWT_COOKIE_SAMESITE', 'Lax')
+            response.set_cookie('jwt', token, httponly=True, secure=cookie_secure, samesite=cookie_samesite)
             return response
         else:
             return JsonResponse({'success': False, 'message': 'Invalid credentials'}, status=401)

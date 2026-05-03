@@ -8,8 +8,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-secret-key")
-DEBUG = os.environ.get("DJANGO_DEBUG", "True") == "True"
-ALLOWED_HOSTS = ["*"]
+DEBUG = os.environ.get("DJANGO_DEBUG", "False") == "True"
+
+allowed_hosts_raw = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_raw.split(",") if host.strip()]
 
 INSTALLED_APPS = [
     "django.contrib.contenttypes",
@@ -19,8 +21,11 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 ROOT_URLCONF = "backend.urls"
@@ -60,8 +65,37 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-CORS_ALLOW_ALL_ORIGINS = True
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+CORS_ALLOW_ALL_ORIGINS = os.environ.get("CORS_ALLOW_ALL_ORIGINS", "False") == "True"
 CORS_ALLOW_CREDENTIALS = True
+
+cors_allowed_origins_raw = os.environ.get("CORS_ALLOWED_ORIGINS", "")
+CORS_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in cors_allowed_origins_raw.split(",")
+    if origin.strip()
+]
+
+csrf_trusted_origins_raw = os.environ.get("CSRF_TRUSTED_ORIGINS", "")
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in csrf_trusted_origins_raw.split(",")
+    if origin.strip()
+]
+
+SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", "False") == "True"
+CSRF_COOKIE_SECURE = os.environ.get("CSRF_COOKIE_SECURE", "False") == "True"
+SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT", "False") == "True"
+SECURE_HSTS_SECONDS = int(os.environ.get("SECURE_HSTS_SECONDS", "0"))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get("SECURE_HSTS_INCLUDE_SUBDOMAINS", "False") == "True"
+SECURE_HSTS_PRELOAD = os.environ.get("SECURE_HSTS_PRELOAD", "False") == "True"
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = os.environ.get("SECURE_REFERRER_POLICY", "same-origin")
+X_FRAME_OPTIONS = "DENY"
 
 # EMAIL_BACKEND = "django.core.mail.backends.con.EmailBackend"
 # EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
