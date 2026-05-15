@@ -90,7 +90,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 cors_allowed_origins_raw = os.environ.get("CORS_ALLOWED_ORIGINS", "")
 CORS_ALLOWED_ORIGINS = [
-    origin.strip()
+    origin.strip().rstrip("/")
     for origin in cors_allowed_origins_raw.split(",")
     if origin.strip()
 ]
